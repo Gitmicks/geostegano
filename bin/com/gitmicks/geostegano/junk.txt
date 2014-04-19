@@ -1,0 +1,38 @@
+//			System.out.println(System.getProperty("user.dir"));
+//			System.out.println("???");
+//			String filename = args[0];
+//			System.out.println(filename);
+//			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+//			
+//			
+//			//BufferedImage image = ImageIO.read();
+//			PngReader reader = new PngReader (classLoader.getResourceAsStream(filename));
+//			
+//			//BufferedImage image = ImageIO.read(ClassLoader.getSystemResourceAsStream("c:\\geo\\out.png"));
+//			System.out.println("!!!");
+//			String tmp = "";
+//			for (String s : args)
+//				tmp += s + ".";
+//
+//			List<Boolean> result = new ArrayList<Boolean>();
+//
+//			int w = image.getWidth();
+//			int h = image.getHeight();
+//
+//			for (int i = 0; i < h; i++)
+//			{
+//				for (int j = 0; j < w; j++)
+//				{
+//					int pixel = image.getRGB(j, i);
+//					for (String s : args)
+//					{
+//						int p = Integer.parseInt(s);
+//						result.add(getBitValue(pixel, p));
+//					}
+//				}
+//			}
+//
+//			FileOutputStream fOut = new FileOutputStream(new File("result_" + tmp + "bin"));
+//			writeBooleans(fOut, result);
+//			fOut.close();
+//			
