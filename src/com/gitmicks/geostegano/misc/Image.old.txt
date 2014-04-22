@@ -1,0 +1,286 @@
+//package com.gitmicks.goestegano.core;
+//
+//import com.gitmicks.geostegano.tools.Tools;
+//
+//import ar.com.hjg.pngj.ImageInfo;
+//import ar.com.hjg.pngj.ImageLineByte;
+//import ar.com.hjg.pngj.ImageLineHelper;
+//import ar.com.hjg.pngj.ImageLineInt;
+//import ar.com.hjg.pngj.PngReader;
+//import ar.com.hjg.pngj.PngWriter;
+//
+//public class Image {
+//
+//	int rows = 0;
+//	int cols = 0;
+//	int bitDepth = 8;
+//	String name = "";
+//
+//	private ImageLineByte[] rowsArray;
+//	Byte[][][] bytesMatrixRGB;
+//
+//	public Image() {
+//
+//	}
+//
+//	public String toString() {
+//
+//		return "rows[" + rows + "] cols[" + cols + "] bitDepth[" + bitDepth
+//				+ "] name[" + name + "] pixels[" + cols * rows + "] bytes["
+//				+ cols * rows * 3 + "] bits[" + cols * rows * 3 * 8 + "]";
+//	}
+//
+//	public void dumpBytesMatrixRGB() {
+//
+//		int index = 0;
+//		for (int rowsNb = 0; rowsNb < rows; rowsNb++) {
+//			for (int colsNb = 0; colsNb < cols; colsNb++) {
+//				for (int rgb = 0; rgb < 3; rgb++) {
+//					System.out
+//							.println("["
+//									+ index
+//									+ "]"
+//									+ Byte.toUnsignedInt(bytesMatrixRGB[rowsNb][colsNb][rgb]));
+//					index++;
+//				}
+//			}
+//		}
+//	}
+//
+//	public void dumpBytesMatrixRGBinBits() {
+//
+//		int index = 0;
+//		for (int rowsNb = 0; rowsNb < rows; rowsNb++) {
+//			for (int colsNb = 0; colsNb < cols; colsNb++) {
+//				for (int rgb = 0; rgb < 3; rgb++) {
+//
+//					Byte b = bytesMatrixRGB[rowsNb][colsNb][rgb];
+//					System.out.println("[" + index + "]" + Tools.byteToBits(b));
+//
+//					index++;
+//				}
+//			}
+//		}
+//	}
+//
+//	public void dumpBytesMatrixRGBinLSB() {
+//
+//		int index = 0;
+//		for (int rowsNb = 0; rowsNb < rows; rowsNb++) {
+//			for (int colsNb = 0; colsNb < cols; colsNb++) {
+//				for (int rgb = 0; rgb < 3; rgb++) {
+//
+//					Byte b = bytesMatrixRGB[rowsNb][colsNb][rgb];
+//					System.out.println("[" + index + "]" + Tools.getLSB8(b));
+//
+//					index++;
+//				}
+//			}
+//		}
+//
+//	}
+//
+//	protected void loadImage(PngReader reader) {
+//
+//		while (reader.hasMoreRows()) {
+//
+//			ImageLineInt im = (ImageLineInt) reader.readRow();
+//
+//		}
+//	}
+//
+//	protected void bytesMatrixRGBload() {
+//
+////		bytesMatrixRGB = new Byte[rows][cols][3];
+////		for (int rowsNb = 0; rowsNb < rows; rowsNb++) {
+////			int[] line = getRowsArray()[rowsNb].getScanline();
+////			int byteIndex = 0;
+////			for (int colsNb = 0; colsNb < cols; colsNb++) {
+////				for (int rgb = 0; rgb < 3; rgb++) {
+////					bytesMatrixRGB[rowsNb][colsNb][rgb] = (byte) bytesLine[byteIndex];
+////					byteIndex++;
+////				}
+////			}
+////		}
+//	}
+//
+//	public Image(String pName, PngReader reader) {
+//		rows = reader.imgInfo.rows;
+//		cols = reader.imgInfo.cols;
+//		bitDepth = reader.imgInfo.bitDepth;
+//		name = pName;
+//		setRowsArray(new ImageLineByte[rows]);
+//		loadImage(reader);
+//		bytesMatrixRGBload();
+//		System.out.println(toString());
+//	}
+//
+//	public int getRows() {
+//		return rows;
+//	}
+//
+//	public void setRows(int rows) {
+//		this.rows = rows;
+//	}
+//
+//	public int getCols() {
+//		return cols;
+//	}
+//
+//	public void setCols(int cols) {
+//		this.cols = cols;
+//	}
+//
+//	public int getBitDepth() {
+//		return bitDepth;
+//	}
+//
+//	public void setBitDepth(int bitDepth) {
+//		this.bitDepth = bitDepth;
+//	}
+//
+//	public void dupe(PngWriter writer, ImageInfo infoOut) {
+//
+//		for (int i = 0; i < getRows(); i++) {
+//
+//			ImageLineInt lineOut = new ImageLineInt(infoOut);
+//			byte[] bytesIn = getRowsArray()[i].getScanlineByte();
+//			System.out.println(bytesIn.toString());
+//			int index = 0;
+//
+//			for (int j = 0; j < getCols(); j++) {
+//				ImageLineHelper.setPixelRGB8(lineOut, j, bytesIn[index++],
+//						bytesIn[index++], bytesIn[index++]);
+//
+//			}
+//
+//			writer.writeRow(lineOut);
+//		}
+//
+//	}
+//
+//	public ImageLineByte[] getRowsArray() {
+//		return rowsArray;
+//	}
+//
+//	public void setRowsArray(ImageLineByte[] rowsArray) {
+//		this.rowsArray = rowsArray;
+//	}
+//
+//}
+
+
+			BufferedImage image = imageReadExample(inputFile);
+
+			System.out.println(image.getHeight());
+			System.out.println(image.getWidth());
+			System.out.println(image.getTransparency());
+			System.out.println(image.getType());
+			FileOutputStream fOut = new FileOutputStream(new File(OUTPUT_PATH
+					+ "result.png"));
+
+			File blueFile = new File(OUTPUT_PATH + "result.txt");
+
+			BufferedWriter blueWriter = new BufferedWriter(new FileWriter(
+					blueFile));
+
+			PngImageParser parser = new PngImageParser();
+
+			Map<String, Object> optionalParams = new HashMap<String, Object>();
+
+			BufferedImage buffImage = parser.getBufferedImage(inputFile,
+					optionalParams);
+
+			// for (int i = 0; i < image.getWidth(); i++) {
+			// for (int j = 0; j < image.getHeight(); j++) {
+			// Color c = new Color(buffImage.getRGB(i, j));
+			// System.out.println("[" + i + "][" + j + "] - ["
+			// + c.getRed() + "][" + c.getGreen() + "]["
+			// + c.getBlue() + "]");
+			// }
+
+			for (int i = 0; i < image.getHeight(); i++) {
+				for (int j = 0; j < image.getWidth(); j++) {
+					Color c = new Color(buffImage.getRGB(j, i));
+					System.out.println("[" + i + "][" + j + "] - ["
+							+ Tools.getLSB8(c.getRed()) + "]["
+							+ Tools.getLSB8(c.getGreen()) + "]["
+							+ Tools.getLSB8(c.getBlue()) + "]");
+				}
+
+				// String[][] matrix = new
+				// String[image.getWidth()/2][image.getHeight()];
+				//
+				// for (int i = 0; i < image.getHeight(); i++) {
+				// String s = "";
+				// for (int j = 0; j < image.getWidth(); j++) {
+				// Color c = new Color(buffImage.getRGB(j, i));
+				// s = s + Tools.getLSB8(c.getRed());
+				// }
+				// int index = 0;
+				// String sub = "";
+				// for (int j = 0; j < image.getWidth()/2; j++) {
+				// sub = s.substring(index,index+2);
+				// System.out.println(sub);
+				// index=index+2;
+				//
+				// }
+				//
+				// blueWriter.write(s + "\n");
+				// }
+				//
+				// blueWriter.close();
+				//
+				// // System.out.println(parser.dumpImageFile(inputFile));
+				// // System.out.println(buffImage.getTransparency());
+				//
+				//
+				// for (int i = 0; i < image.getWidth()/2; i++) {
+				// for (int j = 0; j < image.getHeight(); j++) {
+				// Color c = new Color();
+				//
+				//
+				// }
+				// }
+				//
+				//
+				// parser.writeImage(buffImage, fOut, optionalParams);
+
+				// File resultFile = (new File(OUTPUT_PATH + "result.png"));
+				// System.out.println(parser.dumpImageFile(resultFile));
+				
+					public static BufferedImage imageReadExample(final File file)
+			throws ImageReadException, IOException {
+		final Map<String, Object> params = new HashMap<String, Object>();
+
+		// set optional parameters if you like
+		params.put(ImagingConstants.BUFFERED_IMAGE_FACTORY,
+				new ManagedImageBufferedImageFactory());
+
+		// params.put(ImagingConstants.PARAM_KEY_VERBOSE, Boolean.TRUE);
+
+		// read image
+		final BufferedImage image = Imaging.getBufferedImage(file, params);
+
+		return image;
+	}
+
+	public static class ManagedImageBufferedImageFactory implements
+			IBufferedImageFactory {
+
+		public BufferedImage getColorBufferedImage(final int width,
+				final int height, final boolean hasAlpha) {
+			final GraphicsEnvironment ge = GraphicsEnvironment
+					.getLocalGraphicsEnvironment();
+			final GraphicsDevice gd = ge.getDefaultScreenDevice();
+			final GraphicsConfiguration gc = gd.getDefaultConfiguration();
+			return gc.createCompatibleImage(width, height,
+					Transparency.TRANSLUCENT);
+		}
+
+		public BufferedImage getGrayscaleBufferedImage(final int width,
+				final int height, final boolean hasAlpha) {
+			return getColorBufferedImage(width, height, hasAlpha);
+		}
+	}
+				

@@ -1,0 +1,82 @@
+//package com.gitmicks.geostegano.misc;
+//
+//import java.io.DataInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileOutputStream;
+//
+//import com.gitmicks.goestegano.core.Image;
+//
+//import ar.com.hjg.pngj.ImageInfo;
+//import ar.com.hjg.pngj.ImageLineByte;
+//import ar.com.hjg.pngj.ImageLineHelper;
+//import ar.com.hjg.pngj.ImageLineInt;
+//import ar.com.hjg.pngj.PngReader;
+//import ar.com.hjg.pngj.PngReaderByte;
+//import ar.com.hjg.pngj.PngWriter;
+//
+//public class Main3 {
+//
+//	
+//	public static final String INPUT_PATH = "src/input/";
+//	public static final String OUTPUT_PATH = "src/output/";
+//	
+//	
+//	public static void main(String[] args) {
+//
+//		try {
+//
+//			System.out.println("main");
+//			String filename = args[0];
+//			DataInputStream dis = new DataInputStream(new FileInputStream(
+//					INPUT_PATH+filename));
+//
+//			PngReader reader = new PngReader(dis);
+//			Image image = new Image(filename, reader);
+//
+//			ImageInfo infoOut = new ImageInfo(image.getRows(),image.getCols(),8,false);
+//			
+//			FileOutputStream fOut = new FileOutputStream(new File(OUTPUT_PATH+"result.png"));
+//			PngWriter writer = new PngWriter(fOut,infoOut);
+//			
+//			//image.dupe(writer,infoOut);
+//			
+//			ImageLineInt[] lineOutArray =  new ImageLineInt[796];
+//			
+//			for (int i = 0; i < image.getRows(); i++) {
+//				ImageLineInt lineIn = (ImageLineInt) reader.readRow();
+//				ImageLineInt lineOut = new ImageLineInt(infoOut);
+//				int[] bytesIn = lineIn.getScanline();
+//
+//				ImageLineHelper.setPixelsRGB8(lineOut,bytesIn);
+//				lineOutArray[i] = lineOut;
+//
+//			}
+//			
+//		for (int i = 0; i < lineOutArray.length; i++) {
+//				
+//				writer.writeRow(lineOutArray[i]);
+//				
+//				
+//			}
+//			
+//			
+//			writer.close();
+//			fOut.close();
+//						
+//			System.out.println("end");
+//
+//		} catch (FileNotFoundException fnfe) {
+//
+//			System.out.println(fnfe.getMessage());
+//		}
+//
+//		catch (Exception e) {
+//
+//			e.printStackTrace();
+//		}
+//
+//	}
+//
+//}
