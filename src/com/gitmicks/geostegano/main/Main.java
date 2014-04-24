@@ -2,17 +2,31 @@ package com.gitmicks.geostegano.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
 
 import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.common.IImageMetadata.IImageMetadataItem;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.png.PngImageParser;
+import org.apache.commons.imaging.formats.png.chunks.PngChunk;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import com.gitmicks.goestegano.core.ImageMicks;
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class Main {
 
 	public static final String INPUT_PATH = "src/input/";
 	public static final String OUTPUT_PATH = "src/output/";
 	public static final String OUTPUT_FILENAME = "output.png";
-
+	
+	
 	public static void main(String[] args) {
 		System.out.println("main");
 
@@ -22,6 +36,17 @@ public class Main {
 			File outputFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
 
 			ImageMicks imageIn = new ImageMicks(inputFile);
+			
+			//imageIn.displayMetadata();
+		
+			//imageIn.BtoR();
+			//imageIn.setLSBtoMSB();
+			//imageIn.bitInversion();
+			//imageIn.shift1();
+			//imageIn.setTestComparaison();
+			imageIn.setLSBtoMSB();
+			//imageIn.testAlpha();
+			
 			imageIn.writeImage(outputFile);
 
 			System.out.println("end");
