@@ -2,9 +2,11 @@ package com.gitmicks.goestegano.core;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -518,32 +520,37 @@ public class ImageMicks {
 
 	}
 
-	public void setBit0() {
+	public void compression(int lRatio, int cRatio, int pBit) {
 
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
+		int i = 0;
+		for (int indexL = 0; indexL < rows / lRatio; indexL++) {
 
-					int b0 = bitmatrix[j][i][k][0];
-					int b1 = bitmatrix[j][i][k][1];
-					int b2 = bitmatrix[j][i][k][2];
-					int b3 = bitmatrix[j][i][k][3];
-					int b4 = bitmatrix[j][i][k][4];
-					int b5 = bitmatrix[j][i][k][5];
-					int b6 = bitmatrix[j][i][k][6];
-					int b7 = bitmatrix[j][i][k][7];
+			int j = 0;
+			for (int indexC = 0; indexC < cols / cRatio; indexC = indexC + 1) {
 
-					bitmatrix[j][i][k][0] = b0;
-					bitmatrix[j][i][k][1] = b0;
-					bitmatrix[j][i][k][2] = b0;
-					bitmatrix[j][i][k][3] = b0;
-					bitmatrix[j][i][k][4] = b0;
-					bitmatrix[j][i][k][5] = b0;
-					bitmatrix[j][i][k][6] = b0;
-					bitmatrix[j][i][k][7] = b0;
+				for (int k = 0; k < 3; k++) {
+					bitmatrix[j][i][k][0] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][1] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][2] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][3] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][4] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][5] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][6] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][7] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
 
 				}
+				j++;
+
 			}
+			i++;
 		}
 
 	}
@@ -646,60 +653,207 @@ public class ImageMicks {
 	public void setBuffImage(BufferedImage buffImage) {
 		this.buffImage = buffImage;
 	}
-	
-	
-	public byte[] writeCustomData( String key, String value) throws Exception {
-	    ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
 
-	    ImageWriteParam writeParam = writer.getDefaultWriteParam();
-	    ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
+	public byte[] writeCustomData(String key, String value) throws Exception {
+		ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
 
-	    //adding metadata
-	    IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
+		ImageWriteParam writeParam = writer.getDefaultWriteParam();
+		ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier
+				.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);
 
-	    IIOMetadataNode textEntry = new IIOMetadataNode("tEXtEntry");
-	    textEntry.setAttribute("keyword", key);
-	    textEntry.setAttribute("value", value);
+		// adding metadata
+		IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier,
+				writeParam);
 
-	    IIOMetadataNode text = new IIOMetadataNode("tEXt");
-	    text.appendChild(textEntry);
+		IIOMetadataNode textEntry = new IIOMetadataNode("tEXtEntry");
+		textEntry.setAttribute("keyword", key);
+		textEntry.setAttribute("value", value);
 
-	    IIOMetadataNode root = new IIOMetadataNode("javax_imageio_png_1.0");
-	    root.appendChild(text);
+		IIOMetadataNode text = new IIOMetadataNode("tEXt");
+		text.appendChild(textEntry);
 
-	    metadata.mergeTree("javax_imageio_png_1.0", root);
+		IIOMetadataNode root = new IIOMetadataNode("javax_imageio_png_1.0");
+		root.appendChild(text);
 
-	    //writing the data
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    ImageOutputStream stream = ImageIO.createImageOutputStream(baos);
-	    writer.setOutput(stream);
-	    writer.write(metadata, new IIOImage(buffImage, null, metadata), writeParam);
-	    stream.close();
+		metadata.mergeTree("javax_imageio_png_1.0", root);
 
-	    return baos.toByteArray();
+		// writing the data
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageOutputStream stream = ImageIO.createImageOutputStream(baos);
+		writer.setOutput(stream);
+		writer.write(metadata, new IIOImage(buffImage, null, metadata),
+				writeParam);
+		stream.close();
+
+		return baos.toByteArray();
 	}
-	
-	public String readCustomData(byte[] imageData, String key) throws IOException{
-	    ImageReader imageReader = ImageIO.getImageReadersByFormatName("png").next();
 
-	    imageReader.setInput(ImageIO.createImageInputStream(new ByteArrayInputStream(imageData)), true);
+	public String readCustomData(byte[] imageData, String key)
+			throws IOException {
+		ImageReader imageReader = ImageIO.getImageReadersByFormatName("png")
+				.next();
 
-	    // read metadata of first image
-	    IIOMetadata metadata = imageReader.getImageMetadata(0);
+		imageReader.setInput(ImageIO
+				.createImageInputStream(new ByteArrayInputStream(imageData)),
+				true);
 
-	    //this cast helps getting the contents
-	    PNGMetadata pngmeta = (PNGMetadata) metadata; 
-	    NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+		// read metadata of first image
+		IIOMetadata metadata = imageReader.getImageMetadata(0);
 
-	    for (int i = 0; i < childNodes.getLength(); i++) {
-	        Node node = childNodes.item(i);
-	        String keyword = node.getAttributes().getNamedItem("keyword").getNodeValue();
-	        String value = node.getAttributes().getNamedItem("value").getNodeValue();
-	        if(key.equals(keyword)){
-	            return value;
-	        }
-	    }
-	    return null;
+		// this cast helps getting the contents
+		PNGMetadata pngmeta = (PNGMetadata) metadata;
+		NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node node = childNodes.item(i);
+			String keyword = node.getAttributes().getNamedItem("keyword")
+					.getNodeValue();
+			String value = node.getAttributes().getNamedItem("value")
+					.getNodeValue();
+			if (key.equals(keyword)) {
+				return value;
+			}
+		}
+		return null;
 	}
+
+	public void setBit0() {
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+
+					int b0 = bitmatrix[j][i][k][0];
+					int b1 = bitmatrix[j][i][k][1];
+					int b2 = bitmatrix[j][i][k][2];
+					int b3 = bitmatrix[j][i][k][3];
+					int b4 = bitmatrix[j][i][k][4];
+					int b5 = bitmatrix[j][i][k][5];
+					int b6 = bitmatrix[j][i][k][6];
+					int b7 = bitmatrix[j][i][k][7];
+
+					bitmatrix[j][i][k][0] = b0;
+					bitmatrix[j][i][k][1] = b0;
+					bitmatrix[j][i][k][2] = b0;
+					bitmatrix[j][i][k][3] = b0;
+					bitmatrix[j][i][k][4] = b0;
+					bitmatrix[j][i][k][5] = b0;
+					bitmatrix[j][i][k][6] = b0;
+					bitmatrix[j][i][k][7] = b0;
+
+				}
+			}
+		}
+
+	}
+
+	public void test() {
+
+		for (int i = 0; i < rows; i++) {
+
+			int index = 0;
+			for (int j = 0; j < 50; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+					bitmatrix[j][i][k][0] = bitmatrix[index][i][k][0];
+					bitmatrix[j][i][k][1] = bitmatrix[index + 1][i][k][0];
+					bitmatrix[j][i][k][2] = bitmatrix[index + 2][i][k][0];
+					bitmatrix[j][i][k][3] = bitmatrix[index + 3][i][k][0];
+					bitmatrix[j][i][k][4] = bitmatrix[index + 4][i][k][0];
+					bitmatrix[j][i][k][5] = bitmatrix[index + 5][i][k][0];
+					bitmatrix[j][i][k][6] = bitmatrix[index + 6][i][k][0];
+					bitmatrix[j][i][k][7] = bitmatrix[index + 7][i][k][0];
+
+				}
+				index = index + 12;
+			}
+		}
+
+	}
+
+	public void writeRawBinaryTxtFile(File txtFile) throws IOException {
+
+		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(
+				txtFile));
+		
+		for (int i = 0; i < rows; i++) {
+			
+			String line = "";
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+
+					int b0 = bitmatrix[j][i][k][0];
+					int b1 = bitmatrix[j][i][k][1];
+					int b2 = bitmatrix[j][i][k][2];
+					int b3 = bitmatrix[j][i][k][3];
+					int b4 = bitmatrix[j][i][k][4];
+					int b5 = bitmatrix[j][i][k][5];
+					int b6 = bitmatrix[j][i][k][6];
+					int b7 = bitmatrix[j][i][k][7];
+
+					String alpha = b7 + "" + b6 + "" + b5 + "" + b4 + "" + b3
+							+ "" + b2 + "" + b1 + "" + b0;
+						
+					line=line+alpha;
+					
+				}
+
+			}
+			txtWriter.write(line + "\n");
+		}
+		txtWriter.close();
+
+	}
+
+	public void writeBit0BinaryTxtFile(File txtFile) throws IOException {
 	
+		
+		
+		
+		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(
+				txtFile));
+		
+		for (int i = 0; i < rows; i++) {
+			
+			String line = "";
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+	
+					int b0 = bitmatrix[j][i][k][0];
+	
+					String alpha = "" + b0;
+						
+					line=line+alpha;
+					
+				}
+	
+			}
+			txtWriter.write(line + "\n");
+		}
+		txtWriter.close();
+	
+	}
+
+	public void writeBit0ToBitmatrix() throws IOException {
+	
+		int[][][][] newbitmatrix = new int[cols][rows][ImageMicks.RGB][bitDepth];
+				
+		for (int i = 0; i < rows; i++) {
+			
+			int jj = 0;
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+					int b0 = bitmatrix[j][i][k][0];
+					
+					// TODO
+					//newbitmatrix[jj][i][k][0]
+					
+					
+					
+				}
+	
+			}
+		}
+	
+	}
+
 }

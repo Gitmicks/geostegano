@@ -34,6 +34,7 @@ public class Main {
 			String filename = args[0];
 			File inputFile = new File(INPUT_PATH + filename);
 			File outputFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
+			File txtFile = new File(OUTPUT_PATH + "result.txt");
 
 			ImageMicks imageIn = new ImageMicks(inputFile);
 			
@@ -44,11 +45,16 @@ public class Main {
 			//imageIn.bitInversion();
 			//imageIn.shift1();
 			//imageIn.setTestComparaison();
-			imageIn.setLSBtoMSB();
+			//imageIn.setLSBtoMSB();
 			//imageIn.testAlpha();
+			//imageIn.compression(4,2,0);
+			//imageIn.setLSBtoMSB();
 			
+			//imageIn.writeRawBinaryTxtFile(txtFile);	
+			imageIn.writeBit0BinaryTxtFile(txtFile);
 			imageIn.writeImage(outputFile);
-
+			
+			
 			System.out.println("end");
 
 		} catch (ImageReadException ire) {
