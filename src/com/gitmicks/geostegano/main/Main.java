@@ -50,12 +50,15 @@ public class Main {
 			//imageIn.compression(4,2,0);
 			//imageIn.setLSBtoMSB();
 			
-			//imageIn.writeRawBinaryTxtFile(txtFile);	
-			imageIn.writeBit0BinaryTxtFile(txtFile);
+			//imageIn.writeRawBinaryTxtFile(txtFile);
+			
+			
+			
+			imageIn.writeBit1BinaryTxtFile(txtFile);
 			imageIn.writeImage(outputFile);
 			
 			
-			System.out.println("end");
+			System.out.println("new end");
 
 		} catch (ImageReadException ire) {
 			// TODO Auto-generated catch block
