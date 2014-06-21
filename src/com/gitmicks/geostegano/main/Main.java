@@ -1,24 +1,14 @@
 package com.gitmicks.geostegano.main;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageInputStream;
 
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.common.IImageMetadata.IImageMetadataItem;
-import org.apache.commons.imaging.common.ImageMetadata;
-import org.apache.commons.imaging.formats.png.PngImageParser;
-import org.apache.commons.imaging.formats.png.chunks.PngChunk;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-
+import com.gitmicks.goestegano.core.Bitmatrix;
+import com.gitmicks.goestegano.core.BitmatrixFactory;
 import com.gitmicks.goestegano.core.ImageMicks;
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class Main {
 
@@ -28,15 +18,38 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
-		System.out.println("main");
+		long top = System.currentTimeMillis();
+		System.out.println("begin ");
+		
 
 		try {
-			String filename = args[0];
-			File inputFile = new File(INPUT_PATH + filename);
+			String envelop = args[0];
+			String hidden = args[1];
+			File envelopFile = new File(INPUT_PATH + envelop);
+			File hiddenFile = new File(INPUT_PATH + hidden);
+	
+			BufferedImage envelopImage = ImageIO.read(envelopFile);
+			BufferedImage hiddenImage = ImageIO.read(hiddenFile);
+			
+			Bitmatrix envelopBm = new Bitmatrix(envelopImage);
+			Bitmatrix hiddenBm = new Bitmatrix(hiddenImage);
+	
 			File outputFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
+			File unhiddenFile = new File(OUTPUT_PATH + "unhidden_"+OUTPUT_FILENAME);
 			File txtFile = new File(OUTPUT_PATH + "result.txt");
 
-			ImageMicks imageIn = new ImageMicks(inputFile);
+			envelopBm.hideInLSB(hiddenBm);
+			
+			//envelopBm.writeRawBinaryTxtFile(txtFile);
+			//envelopBm.writeRGBbits2BinaryTxtFile(txtFile, 1);
+			
+			ImageMicks imageOut = new ImageMicks();
+			imageOut.writeImage(outputFile, envelopBm);
+								
+			BufferedImage envelopImageWithHidden = ImageIO.read(outputFile);
+			Bitmatrix outputBM = BitmatrixFactory.buildLSBitmatrixFromImage(envelopImageWithHidden);
+			imageOut.writeImage(unhiddenFile, outputBM);
+			
 			
 			//imageIn.displayMetadata();
 		
@@ -49,20 +62,21 @@ public class Main {
 			//imageIn.testAlpha();
 			//imageIn.compression(4,2,0);
 			//imageIn.setLSBtoMSB();
+			//imageIn.setBit1();
 			
 			//imageIn.writeRawBinaryTxtFile(txtFile);
+			//imageIn.writeBit1BinaryTxtFile(txtFile);
+			//imageIn.writeRGBbits2BinaryTxtFile(txtFile,1);
+			//imageIn.writeRGBbits2BinaryTxtFile(txtFile,0,1,2);
+			//imageIn.writeImage(outputFile);
 			
 			
 			
-			imageIn.writeBit1BinaryTxtFile(txtFile);
-			imageIn.writeImage(outputFile);
 			
-			
-			System.out.println("new end");
+			System.out.println("end");
+			long stop = System.currentTimeMillis();
+			System.out.println("elapsed = "+(stop-top)/1000 +" s");
 
-		} catch (ImageReadException ire) {
-			// TODO Auto-generated catch block
-			ire.printStackTrace();
 		} catch (IOException ioe) {
 			// TODO Auto-generated catch block
 			ioe.printStackTrace();

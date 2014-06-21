@@ -34,94 +34,22 @@ import com.sun.imageio.plugins.png.PNGMetadata;
 
 public class ImageMicks {
 
-	private File inputFile;
-	private int rows = 0;
-	private int cols = 0;
-	private int bitDepth = 8;
-	private String name = "";
-	private BufferedImage buffImage;
+	final static protected int B = 2;
+	final static protected int G = 1;
+	final static protected int LSB = 0;
+	final static protected int R = 0;
+	final static protected int RGB = 3;
+	protected int bitDepth = 8;
 
-	final static private int RGB = 3;
-	final static private int R = 0;
-	final static private int G = 1;
-	final static private int B = 2;
-	final static private int LSB = 0;
+	protected int[][][][] bitmatrix;
+	protected BufferedImage buffImage;
+	protected int cols = 0;
+	protected File inputFile;
+	protected String name = "";
 
-	private int[][][][] bitmatrix;
+	protected int rows = 0;
 
 	public ImageMicks() {
-
-	}
-
-	public void displayMetadata() throws IOException {
-
-		ImageInputStream iis = ImageIO.createImageInputStream(inputFile);
-		Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-
-		if (readers.hasNext()) {
-
-			// pick the first available ImageReader
-			ImageReader reader = readers.next();
-
-			// attach source to the reader
-			reader.setInput(iis, true);
-
-			// read metadata of first image
-			IIOMetadata metadata = reader.getImageMetadata(0);
-
-			String[] names = metadata.getMetadataFormatNames();
-			int length = names.length;
-			for (int i = 0; i < length; i++) {
-				System.out.println("Format name: " + names[i]);
-				displayMetadata(metadata.getAsTree(names[i]));
-			}
-		}
-
-	}
-
-	private void displayMetadata(Node root) {
-		displayMetadata(root, 0);
-	}
-
-	private void indent(int level) {
-		for (int i = 0; i < level; i++)
-			System.out.print("    ");
-	}
-
-	private void displayMetadata(Node node, int level) {
-		// print open tag of element
-		indent(level);
-		System.out.print("<" + node.getNodeName());
-		NamedNodeMap map = node.getAttributes();
-		if (map != null) {
-
-			// print attribute values
-			int length = map.getLength();
-			for (int i = 0; i < length; i++) {
-				Node attr = map.item(i);
-				System.out.print(" " + attr.getNodeName() + "=\""
-						+ attr.getNodeValue() + "\"");
-			}
-		}
-
-		Node child = node.getFirstChild();
-		if (child == null) {
-			// no children, so close element and return
-			System.out.println("/>");
-			return;
-		}
-
-		// children, so close current tag
-		System.out.println(">");
-		while (child != null) {
-			// print children recursively
-			displayMetadata(child, level + 1);
-			child = child.getNextSibling();
-		}
-
-		// print close tag of element
-		indent(level);
-		System.out.println("</" + node.getNodeName() + ">");
 
 	}
 
@@ -129,109 +57,6 @@ public class ImageMicks {
 
 		inputFile = pFile;
 		buffImage = loadImage();
-	}
-
-	public void writeImage(File pFile) throws IOException {
-		final BufferedImage imageOut = new BufferedImage(cols, rows,
-				BufferedImage.TYPE_INT_RGB);
-
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-
-				imageOut.setRGB(j, i, getRGB(j, i));
-
-			}
-		}
-
-		ImageIO.write(imageOut, "png", pFile);
-	}
-
-	public int getRGB(int pCol, int pRow) {
-
-		String rInBits = "";
-		String gInBits = "";
-		String bInBits = "";
-
-		for (int k = 0; k < bitDepth; k++) {
-			rInBits = rInBits
-					+ bitmatrix[pCol][pRow][ImageMicks.R][bitDepth - 1 - k];
-			gInBits = gInBits
-					+ bitmatrix[pCol][pRow][ImageMicks.G][bitDepth - 1 - k];
-			bInBits = bInBits
-					+ bitmatrix[pCol][pRow][ImageMicks.B][bitDepth - 1 - k];
-		}
-
-		int r = Tools.bitsToInt(rInBits);
-		int g = Tools.bitsToInt(gInBits);
-		int b = Tools.bitsToInt(bInBits);
-
-		Color c = new Color(r, g, b);
-		return c.getRGB();
-	}
-
-	public BufferedImage loadImage() throws ImageReadException, IOException {
-
-		//final Map<String, Object> params = new HashMap<String, Object>();
-
-		//final BufferedImage image = Imaging.getBufferedImage(inputFile, params);
-		final BufferedImage image = ImageIO.read(inputFile);
-		cols = image.getWidth();
-		rows = image.getHeight();
-		name = inputFile.getName();
-		bitmatrix = new int[cols][rows][ImageMicks.RGB][bitDepth];
-		for (int i = 0; i < image.getHeight(); i++) {
-			for (int j = 0; j < image.getWidth(); j++){
-				int pixel = image.getRGB(j, i);
-				Color c = new Color (pixel);
-				int r = c.getRed();
-				int g = c.getGreen();
-				int b = c.getBlue();
-				setRGB(j, i, r, g, b);
-			}
-		}
-		return image;
-	}
-
-	public void setRGB(int pCol, int pRow, int r, int g, int b) {
-		setR(pCol, pRow, r);
-		setG(pCol, pRow, g);
-		setB(pCol, pRow, b);
-	}
-
-	public void setR(int pCol, int pRow, int rgb) {
-		String rgbInBits = Tools.intToBits(rgb);
-		for (int j = 0; j < bitDepth; j++) {
-
-			bitmatrix[pCol][pRow][ImageMicks.R][j] = Integer.parseInt(rgbInBits
-					.substring(bitDepth - 1 - j, bitDepth - j));
-		}
-	}
-
-	public void setG(int pCol, int pRow, int rgb) {
-		String rgbInBits = Tools.intToBits(rgb);
-		for (int j = 0; j < bitDepth; j++) {
-			bitmatrix[pCol][pRow][ImageMicks.G][j] = Integer.parseInt(rgbInBits
-					.substring(bitDepth - 1 - j, bitDepth - j));
-		}
-	}
-
-	public void setB(int pCol, int pRow, int rgb) {
-		String rgbInBits = Tools.intToBits(rgb);
-		for (int j = 0; j < bitDepth; j++) {
-			bitmatrix[pCol][pRow][ImageMicks.B][j] = Integer.parseInt(rgbInBits
-					.substring(bitDepth - 1 - j, bitDepth - j));
-		}
-	}
-
-	public void setLSBtoMSB() {
-
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-					bitmatrix[j][i][k][7] = bitmatrix[j][i][k][0];
-				}
-			}
-		}
 	}
 
 	public void bitInversion() {
@@ -296,44 +121,6 @@ public class ImageMicks {
 					} else {
 						bitmatrix[j][i][k][7] = 0;
 					}
-
-				}
-			}
-		}
-
-	}
-
-	public void setTest() {
-
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-
-					int b0 = bitmatrix[j][i][k][0];
-					int b1 = bitmatrix[j][i][k][1];
-					int b2 = bitmatrix[j][i][k][2];
-					int b3 = bitmatrix[j][i][k][3];
-					int b4 = bitmatrix[j][i][k][4];
-					int b5 = bitmatrix[j][i][k][5];
-					int b6 = bitmatrix[j][i][k][6];
-					int b7 = bitmatrix[j][i][k][7];
-
-					// bitmatrix[j][i][k][0] = b0;
-					// bitmatrix[j][i][k][1] = b1;
-					// bitmatrix[j][i][k][2] = b2;
-					// bitmatrix[j][i][k][3] = b3;
-					// bitmatrix[j][i][k][4] = b4;
-					// bitmatrix[j][i][k][5] = b5;
-					// bitmatrix[j][i][k][6] = b6;
-					// bitmatrix[j][i][k][7] = b7;
-
-					bitmatrix[j][i][k][0] = b0;
-					bitmatrix[j][i][k][1] = b1;
-					bitmatrix[j][i][k][2] = b2;
-					bitmatrix[j][i][k][3] = b3;
-					bitmatrix[j][i][k][4] = b4;
-					bitmatrix[j][i][k][5] = b5;
-					bitmatrix[j][i][k][6] = b6;
 
 				}
 			}
@@ -431,6 +218,231 @@ public class ImageMicks {
 
 	}
 
+	public void compression(int lRatio, int cRatio, int pBit) {
+
+		int i = 0;
+		for (int indexL = 0; indexL < rows / lRatio; indexL++) {
+
+			int j = 0;
+			for (int indexC = 0; indexC < cols / cRatio; indexC = indexC + 1) {
+
+				for (int k = 0; k < 3; k++) {
+					bitmatrix[j][i][k][0] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][1] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][2] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][3] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][4] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][5] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][6] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+					bitmatrix[j][i][k][7] = bitmatrix[indexC * cRatio][indexL
+							* lRatio][k][pBit];
+
+				}
+				j++;
+
+			}
+			i++;
+		}
+
+	}
+
+	public void displayMetadata() throws IOException {
+
+		ImageInputStream iis = ImageIO.createImageInputStream(inputFile);
+		Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+
+		if (readers.hasNext()) {
+
+			// pick the first available ImageReader
+			ImageReader reader = readers.next();
+
+			// attach source to the reader
+			reader.setInput(iis, true);
+
+			// read metadata of first image
+			IIOMetadata metadata = reader.getImageMetadata(0);
+
+			String[] names = metadata.getMetadataFormatNames();
+			int length = names.length;
+			for (int i = 0; i < length; i++) {
+				System.out.println("Format name: " + names[i]);
+				displayMetadata(metadata.getAsTree(names[i]));
+			}
+		}
+
+	}
+
+	private void displayMetadata(Node root) {
+		displayMetadata(root, 0);
+	}
+
+	private void displayMetadata(Node node, int level) {
+		// print open tag of element
+		indent(level);
+		System.out.print("<" + node.getNodeName());
+		NamedNodeMap map = node.getAttributes();
+		if (map != null) {
+
+			// print attribute values
+			int length = map.getLength();
+			for (int i = 0; i < length; i++) {
+				Node attr = map.item(i);
+				System.out.print(" " + attr.getNodeName() + "=\""
+						+ attr.getNodeValue() + "\"");
+			}
+		}
+
+		Node child = node.getFirstChild();
+		if (child == null) {
+			// no children, so close element and return
+			System.out.println("/>");
+			return;
+		}
+
+		// children, so close current tag
+		System.out.println(">");
+		while (child != null) {
+			// print children recursively
+			displayMetadata(child, level + 1);
+			child = child.getNextSibling();
+		}
+
+		// print close tag of element
+		indent(level);
+		System.out.println("</" + node.getNodeName() + ">");
+
+	}
+
+	public BufferedImage getBuffImage() {
+		return buffImage;
+	}
+
+	public int getRGB(int pCol, int pRow) {
+
+		String rInBits = "";
+		String gInBits = "";
+		String bInBits = "";
+
+		for (int k = 0; k < bitDepth; k++) {
+			rInBits = rInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.R][bitDepth - 1 - k];
+			gInBits = gInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.G][bitDepth - 1 - k];
+			bInBits = bInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.B][bitDepth - 1 - k];
+		}
+
+		int r = Tools.bitsToInt(rInBits);
+		int g = Tools.bitsToInt(gInBits);
+		int b = Tools.bitsToInt(bInBits);
+
+		Color c = new Color(r, g, b);
+		return c.getRGB();
+	}
+
+	private void indent(int level) {
+		for (int i = 0; i < level; i++)
+			System.out.print("    ");
+	}
+
+	public BufferedImage loadImage() throws ImageReadException, IOException {
+
+		// final Map<String, Object> params = new HashMap<String, Object>();
+
+		// final BufferedImage image = Imaging.getBufferedImage(inputFile,
+		// params);
+		final BufferedImage image = ImageIO.read(inputFile);
+		cols = image.getWidth();
+		rows = image.getHeight();
+		name = inputFile.getName();
+		bitmatrix = new int[cols][rows][ImageMicks.RGB][bitDepth];
+		for (int i = 0; i < image.getHeight(); i++) {
+			for (int j = 0; j < image.getWidth(); j++) {
+				int pixel = image.getRGB(j, i);
+				Color c = new Color(pixel);
+				int r = c.getRed();
+				int g = c.getGreen();
+				int b = c.getBlue();
+				setRGB(j, i, r, g, b);
+			}
+		}
+		return image;
+	}
+
+	public String readCustomData(byte[] imageData, String key)
+			throws IOException {
+		ImageReader imageReader = ImageIO.getImageReadersByFormatName("png")
+				.next();
+
+		imageReader.setInput(ImageIO
+				.createImageInputStream(new ByteArrayInputStream(imageData)),
+				true);
+
+		// read metadata of first image
+		IIOMetadata metadata = imageReader.getImageMetadata(0);
+
+		// this cast helps getting the contents
+		PNGMetadata pngmeta = (PNGMetadata) metadata;
+		NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node node = childNodes.item(i);
+			String keyword = node.getAttributes().getNamedItem("keyword")
+					.getNodeValue();
+			String value = node.getAttributes().getNamedItem("value")
+					.getNodeValue();
+			if (key.equals(keyword)) {
+				return value;
+			}
+		}
+		return null;
+	}
+
+	public void setB(int pCol, int pRow, int rgb) {
+		String rgbInBits = Tools.intToBits(rgb);
+		for (int j = 0; j < bitDepth; j++) {
+			bitmatrix[pCol][pRow][ImageMicks.B][j] = Integer.parseInt(rgbInBits
+					.substring(bitDepth - 1 - j, bitDepth - j));
+		}
+	}
+
+	public void setBit0() {
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+
+					int b0 = bitmatrix[j][i][k][0];
+					int b1 = bitmatrix[j][i][k][1];
+					int b2 = bitmatrix[j][i][k][2];
+					int b3 = bitmatrix[j][i][k][3];
+					int b4 = bitmatrix[j][i][k][4];
+					int b5 = bitmatrix[j][i][k][5];
+					int b6 = bitmatrix[j][i][k][6];
+					int b7 = bitmatrix[j][i][k][7];
+
+					bitmatrix[j][i][k][0] = b0;
+					bitmatrix[j][i][k][1] = b0;
+					bitmatrix[j][i][k][2] = b0;
+					bitmatrix[j][i][k][3] = b0;
+					bitmatrix[j][i][k][4] = b0;
+					bitmatrix[j][i][k][5] = b0;
+					bitmatrix[j][i][k][6] = b0;
+					bitmatrix[j][i][k][7] = b0;
+
+				}
+			}
+		}
+
+	}
+
 	public void setBit1() {
 
 		for (int i = 0; i < rows; i++) {
@@ -454,36 +466,6 @@ public class ImageMicks {
 					bitmatrix[j][i][k][5] = b1;
 					bitmatrix[j][i][k][6] = b1;
 					bitmatrix[j][i][k][7] = b1;
-
-				}
-			}
-		}
-
-	}
-
-	public void shift1() {
-
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-
-					int b0 = bitmatrix[j][i][k][0];
-					int b1 = bitmatrix[j][i][k][1];
-					int b2 = bitmatrix[j][i][k][2];
-					int b3 = bitmatrix[j][i][k][3];
-					int b4 = bitmatrix[j][i][k][4];
-					int b5 = bitmatrix[j][i][k][5];
-					int b6 = bitmatrix[j][i][k][6];
-					int b7 = bitmatrix[j][i][k][7];
-
-					bitmatrix[j][i][k][0] = b7;
-					bitmatrix[j][i][k][1] = b0;
-					bitmatrix[j][i][k][2] = b1;
-					bitmatrix[j][i][k][3] = b2;
-					bitmatrix[j][i][k][4] = b3;
-					bitmatrix[j][i][k][5] = b4;
-					bitmatrix[j][i][k][6] = b5;
-					bitmatrix[j][i][k][7] = b6;
 
 				}
 			}
@@ -521,37 +503,78 @@ public class ImageMicks {
 
 	}
 
-	public void compression(int lRatio, int cRatio, int pBit) {
+	public void setBuffImage(BufferedImage buffImage) {
+		this.buffImage = buffImage;
+	}
 
-		int i = 0;
-		for (int indexL = 0; indexL < rows / lRatio; indexL++) {
+	public void setG(int pCol, int pRow, int rgb) {
+		String rgbInBits = Tools.intToBits(rgb);
+		for (int j = 0; j < bitDepth; j++) {
+			bitmatrix[pCol][pRow][ImageMicks.G][j] = Integer.parseInt(rgbInBits
+					.substring(bitDepth - 1 - j, bitDepth - j));
+		}
+	}
 
-			int j = 0;
-			for (int indexC = 0; indexC < cols / cRatio; indexC = indexC + 1) {
+	public void setLSBtoMSB() {
 
-				for (int k = 0; k < 3; k++) {
-					bitmatrix[j][i][k][0] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][1] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][2] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][3] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][4] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][5] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][6] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
-					bitmatrix[j][i][k][7] = bitmatrix[indexC * cRatio][indexL
-							* lRatio][k][pBit];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+					bitmatrix[j][i][k][7] = bitmatrix[j][i][k][0];
+				}
+			}
+		}
+	}
+
+	public void setR(int pCol, int pRow, int rgb) {
+		String rgbInBits = Tools.intToBits(rgb);
+		for (int j = 0; j < bitDepth; j++) {
+
+			bitmatrix[pCol][pRow][ImageMicks.R][j] = Integer.parseInt(rgbInBits
+					.substring(bitDepth - 1 - j, bitDepth - j));
+		}
+	}
+
+	public void setRGB(int pCol, int pRow, int r, int g, int b) {
+		setR(pCol, pRow, r);
+		setG(pCol, pRow, g);
+		setB(pCol, pRow, b);
+	}
+
+	public void setTest() {
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+
+					int b0 = bitmatrix[j][i][k][0];
+					int b1 = bitmatrix[j][i][k][1];
+					int b2 = bitmatrix[j][i][k][2];
+					int b3 = bitmatrix[j][i][k][3];
+					int b4 = bitmatrix[j][i][k][4];
+					int b5 = bitmatrix[j][i][k][5];
+					int b6 = bitmatrix[j][i][k][6];
+					int b7 = bitmatrix[j][i][k][7];
+
+					// bitmatrix[j][i][k][0] = b0;
+					// bitmatrix[j][i][k][1] = b1;
+					// bitmatrix[j][i][k][2] = b2;
+					// bitmatrix[j][i][k][3] = b3;
+					// bitmatrix[j][i][k][4] = b4;
+					// bitmatrix[j][i][k][5] = b5;
+					// bitmatrix[j][i][k][6] = b6;
+					// bitmatrix[j][i][k][7] = b7;
+
+					bitmatrix[j][i][k][0] = b0;
+					bitmatrix[j][i][k][1] = b1;
+					bitmatrix[j][i][k][2] = b2;
+					bitmatrix[j][i][k][3] = b3;
+					bitmatrix[j][i][k][4] = b4;
+					bitmatrix[j][i][k][5] = b5;
+					bitmatrix[j][i][k][6] = b6;
 
 				}
-				j++;
-
 			}
-			i++;
 		}
 
 	}
@@ -606,6 +629,59 @@ public class ImageMicks {
 
 	}
 
+	public void shift1() {
+
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+
+					int b0 = bitmatrix[j][i][k][0];
+					int b1 = bitmatrix[j][i][k][1];
+					int b2 = bitmatrix[j][i][k][2];
+					int b3 = bitmatrix[j][i][k][3];
+					int b4 = bitmatrix[j][i][k][4];
+					int b5 = bitmatrix[j][i][k][5];
+					int b6 = bitmatrix[j][i][k][6];
+					int b7 = bitmatrix[j][i][k][7];
+
+					bitmatrix[j][i][k][0] = b7;
+					bitmatrix[j][i][k][1] = b0;
+					bitmatrix[j][i][k][2] = b1;
+					bitmatrix[j][i][k][3] = b2;
+					bitmatrix[j][i][k][4] = b3;
+					bitmatrix[j][i][k][5] = b4;
+					bitmatrix[j][i][k][6] = b5;
+					bitmatrix[j][i][k][7] = b6;
+
+				}
+			}
+		}
+
+	}
+
+	public void test() {
+
+		for (int i = 0; i < rows; i++) {
+
+			int index = 0;
+			for (int j = 0; j < 50; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+					bitmatrix[j][i][k][0] = bitmatrix[index][i][k][0];
+					bitmatrix[j][i][k][1] = bitmatrix[index + 1][i][k][0];
+					bitmatrix[j][i][k][2] = bitmatrix[index + 2][i][k][0];
+					bitmatrix[j][i][k][3] = bitmatrix[index + 3][i][k][0];
+					bitmatrix[j][i][k][4] = bitmatrix[index + 4][i][k][0];
+					bitmatrix[j][i][k][5] = bitmatrix[index + 5][i][k][0];
+					bitmatrix[j][i][k][6] = bitmatrix[index + 6][i][k][0];
+					bitmatrix[j][i][k][7] = bitmatrix[index + 7][i][k][0];
+
+				}
+				index = index + 12;
+			}
+		}
+
+	}
+
 	public void testAlpha() {
 
 		for (int i = 0; i < rows; i++) {
@@ -647,12 +723,25 @@ public class ImageMicks {
 
 	}
 
-	public BufferedImage getBuffImage() {
-		return buffImage;
-	}
+	public void writeBit0ToBitmatrix() throws IOException {
 
-	public void setBuffImage(BufferedImage buffImage) {
-		this.buffImage = buffImage;
+		int[][][][] newbitmatrix = new int[cols][rows][ImageMicks.RGB][bitDepth];
+
+		for (int i = 0; i < rows; i++) {
+
+			int jj = 0;
+			for (int j = 0; j < cols; j++) {
+				for (int k = 0; k < ImageMicks.RGB; k++) {
+					int b0 = bitmatrix[j][i][k][0];
+
+					// TODO
+					// newbitmatrix[jj][i][k][0]
+
+				}
+
+			}
+		}
+
 	}
 
 	public byte[] writeCustomData(String key, String value) throws Exception {
@@ -689,95 +778,44 @@ public class ImageMicks {
 		return baos.toByteArray();
 	}
 
-	public String readCustomData(byte[] imageData, String key)
-			throws IOException {
-		ImageReader imageReader = ImageIO.getImageReadersByFormatName("png")
-				.next();
-
-		imageReader.setInput(ImageIO
-				.createImageInputStream(new ByteArrayInputStream(imageData)),
-				true);
-
-		// read metadata of first image
-		IIOMetadata metadata = imageReader.getImageMetadata(0);
-
-		// this cast helps getting the contents
-		PNGMetadata pngmeta = (PNGMetadata) metadata;
-		NodeList childNodes = pngmeta.getStandardTextNode().getChildNodes();
-
-		for (int i = 0; i < childNodes.getLength(); i++) {
-			Node node = childNodes.item(i);
-			String keyword = node.getAttributes().getNamedItem("keyword")
-					.getNodeValue();
-			String value = node.getAttributes().getNamedItem("value")
-					.getNodeValue();
-			if (key.equals(keyword)) {
-				return value;
-			}
-		}
-		return null;
-	}
-
-	public void setBit0() {
+	public void writeImage(File pFile) throws IOException {
+		final BufferedImage imageOut = new BufferedImage(cols, rows,
+				BufferedImage.TYPE_INT_RGB);
 
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
 
-					int b0 = bitmatrix[j][i][k][0];
-					int b1 = bitmatrix[j][i][k][1];
-					int b2 = bitmatrix[j][i][k][2];
-					int b3 = bitmatrix[j][i][k][3];
-					int b4 = bitmatrix[j][i][k][4];
-					int b5 = bitmatrix[j][i][k][5];
-					int b6 = bitmatrix[j][i][k][6];
-					int b7 = bitmatrix[j][i][k][7];
+				imageOut.setRGB(j, i, getRGB(j, i));
 
-					bitmatrix[j][i][k][0] = b0;
-					bitmatrix[j][i][k][1] = b0;
-					bitmatrix[j][i][k][2] = b0;
-					bitmatrix[j][i][k][3] = b0;
-					bitmatrix[j][i][k][4] = b0;
-					bitmatrix[j][i][k][5] = b0;
-					bitmatrix[j][i][k][6] = b0;
-					bitmatrix[j][i][k][7] = b0;
-
-				}
 			}
 		}
 
+		ImageIO.write(imageOut, "png", pFile);
 	}
 
-	public void test() {
+	
+	public void writeImage(File pFile, Bitmatrix bm) throws IOException {
+		final BufferedImage imageOut = new BufferedImage(bm.getCols(), bm.getRows(),
+				BufferedImage.TYPE_INT_RGB);
 
-		for (int i = 0; i < rows; i++) {
+		for (int i = 0; i < bm.getRows(); i++) {
+			System.out.println("writeImage row "+i);
+			for (int j = 0; j < bm.getCols(); j++) {
 
-			int index = 0;
-			for (int j = 0; j < 50; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-					bitmatrix[j][i][k][0] = bitmatrix[index][i][k][0];
-					bitmatrix[j][i][k][1] = bitmatrix[index + 1][i][k][0];
-					bitmatrix[j][i][k][2] = bitmatrix[index + 2][i][k][0];
-					bitmatrix[j][i][k][3] = bitmatrix[index + 3][i][k][0];
-					bitmatrix[j][i][k][4] = bitmatrix[index + 4][i][k][0];
-					bitmatrix[j][i][k][5] = bitmatrix[index + 5][i][k][0];
-					bitmatrix[j][i][k][6] = bitmatrix[index + 6][i][k][0];
-					bitmatrix[j][i][k][7] = bitmatrix[index + 7][i][k][0];
+				imageOut.setRGB(j, i, bm.getRGB(j, i));
 
-				}
-				index = index + 12;
 			}
 		}
 
+		ImageIO.write(imageOut, "png", pFile);
 	}
-
+	
 	public void writeRawBinaryTxtFile(File txtFile) throws IOException {
 
-		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(
-				txtFile));
-		
+		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
+
 		for (int i = 0; i < rows; i++) {
-			
+
 			String line = "";
 			for (int j = 0; j < cols; j++) {
 				for (int k = 0; k < ImageMicks.RGB; k++) {
@@ -793,9 +831,9 @@ public class ImageMicks {
 
 					String alpha = b7 + "" + b6 + "" + b5 + "" + b4 + "" + b3
 							+ "" + b2 + "" + b1 + "" + b0;
-						
-					line=line+alpha;
-					
+
+					line = line + alpha;
+
 				}
 
 			}
@@ -805,88 +843,77 @@ public class ImageMicks {
 
 	}
 
-	public void writeBit0BinaryTxtFile(File txtFile) throws IOException {
-	
-		
-		
-		
-		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(
-				txtFile));
-		
-		for (int i = 0; i < rows; i++) {
-			
+	/**
+	 * Gets all the "n-position (0..7)" RGB bits from bitmatrix and exports them
+	 * to a text file, row by row.
+	 * 
+	 * @param bitPosition
+	 *            the bit position to be extracted from RGB and written
+	 * @param txtFile
+	 *            output text file
+	 * @throws IOException
+	 */
+	public void writeRGBbits2BinaryTxtFile(File txtFile, int bitPosition)
+			throws IOException {
+
+		System.out.println("   writeRGBbits2BinaryTxtFile " + bitPosition);
+		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
+
+		for (int y = 0; y < rows; y++) {
+
 			String line = "";
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-	
-					
-					int b0 = bitmatrix[j][i][k][0];
-	
-					String alpha = "" + b0;
-						
-					line=line+alpha;
-					
-				}
-	
+			for (int x = 0; x < cols; x++) {
+
+				int r = bitmatrix[x][y][R][bitPosition];
+				int g = bitmatrix[x][y][G][bitPosition];
+				int b = bitmatrix[x][y][B][bitPosition];
+
+				// bits R,G and B converted to string
+				String alpha = "" + r + "" + g + "" + b;
+				line = line + alpha;
 			}
 			txtWriter.write(line + "\n");
 		}
 		txtWriter.close();
-	
-	}
-	
-public void writeBit1BinaryTxtFile(File txtFile) throws IOException {
-	// TODO : write bit n
-		
-		
-		
-		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(
-				txtFile));
-		
-		for (int i = 0; i < 1; i++) {
-			
-			String line = "";
-			for (int j = 0; j < 96; j++) {
-				
-				
-					int b0 = bitmatrix[j][i][0][1];
-					int b1 = bitmatrix[j][i][1][1];
-					int b2 = bitmatrix[j][i][2][1];
-	
-					String alpha = "" + b0 + "" +b1 + "" +b2;
-						
-					
-					line=line+alpha;
-					
-					
-			}
-			txtWriter.write(line + "\n");
-		}
-		txtWriter.close();
-	
 	}
 
-	public void writeBit0ToBitmatrix() throws IOException {
-	
-		int[][][][] newbitmatrix = new int[cols][rows][ImageMicks.RGB][bitDepth];
-				
-		for (int i = 0; i < rows; i++) {
-			
-			int jj = 0;
-			for (int j = 0; j < cols; j++) {
-				for (int k = 0; k < ImageMicks.RGB; k++) {
-					int b0 = bitmatrix[j][i][k][0];
-					
-					// TODO
-					//newbitmatrix[jj][i][k][0]
-					
-					
-					
-				}
-	
+	/**
+	 * Gets all the "n-position (0..7)" RGB bits from bitmatrix and exports them
+	 * to a text file, row by row. Here, each RGB has its defined position.
+	 * 
+	 * @param Rposition
+	 *            the bit position from R
+	 * @param Gposition
+	 *            the bit position from G
+	 * @param Bposition
+	 *            the bit position from B
+	 * @param txtFile
+	 *            output text file
+	 * @throws IOException
+	 */
+	public void writeRGBbits2BinaryTxtFile(File txtFile, int Rposition,
+			int Gposition, int Bposition) throws IOException {
+
+		System.out.println("   writeRGBbits2BinaryTxtFile " + "R" + Rposition
+				+ "G" + Gposition + "B" + Bposition);
+		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
+
+		for (int y = 0; y < rows; y++) {
+
+			String line = "";
+			for (int x = 0; x < cols; x++) {
+
+				int r = bitmatrix[x][y][R][Rposition];
+				int g = bitmatrix[x][y][G][Gposition];
+				int b = bitmatrix[x][y][B][Bposition];
+
+				// bits R,G and B converted to string
+				String alpha = "" + r + "" + g + "" + b;
+				line = line + alpha;
 			}
+			txtWriter.write(line + "\n");
 		}
-	
+		txtWriter.close();
 	}
 
 }

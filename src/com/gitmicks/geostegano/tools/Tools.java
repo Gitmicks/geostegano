@@ -44,6 +44,32 @@ public class Tools {
 		return Integer.parseInt(s.substring(s.length()-1, s.length())) ;
 	}
 	
+	public static String buildString(String inputLine, int position, int step)
+	{
+		String result = "";
+		 
+		int length = inputLine.length();
+		
+		while (length > position) {
+			
+			result = result + inputLine.substring(position, position+1);
+			position = position + step;
+		}
+		
+		return result;
+		
+	}
 	
+	public static String[] getStringVector (String line, int vectorSize, int stringLength)
+	{
+			
+		String[] stringVector = new String[vectorSize]; 		
+		int index = 0;
+		for (int x = 0; x < vectorSize; x++) {	
+			stringVector[x] = line.substring(index, index+stringLength);
+			index = index + stringLength;
+		}
+		return stringVector;
+	}
 	
 }
