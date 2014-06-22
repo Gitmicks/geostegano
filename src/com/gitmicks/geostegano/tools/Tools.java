@@ -1,6 +1,9 @@
 package com.gitmicks.geostegano.tools;
 
+
 public class Tools {
+	
+	
 
 	public static String byteToBits(Byte b) {
 

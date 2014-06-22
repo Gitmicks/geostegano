@@ -1,47 +1,65 @@
 package com.gitmicks.geostegano.main;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.gitmicks.goestegano.core.Bitmatrix;
-import com.gitmicks.goestegano.core.BitmatrixFactory;
-import com.gitmicks.goestegano.core.ImageMicks;
+import com.gitmicks.logging.Logging;
 
 public class Main {
+	
+	
 
 	public static final String INPUT_PATH = "src/input/";
 	public static final String OUTPUT_PATH = "src/output/";
 	public static final String OUTPUT_FILENAME = "output.png";
+		
 	
+	public static void logConfig()
+	{
+		String log4jConfigFile = System.getProperty("user.dir")
+                + File.separator + "\\config\\log4j.properties";
+        PropertyConfigurator.configure(log4jConfigFile);
+        LogManager.getLogger(Logging.LOGGER).setLevel(Level.INFO);
+		
+	}
 	
 	public static void main(String[] args) {
-		long top = System.currentTimeMillis();
-		System.out.println("begin ");
+		logConfig();
 		
-
+		long top = System.currentTimeMillis();
+		Logging.logger.info("Start ...");
+		
 		try {
+		
 			String envelop = args[0];
-			String hidden = args[1];
 			File envelopFile = new File(INPUT_PATH + envelop);
-			File hiddenFile = new File(INPUT_PATH + hidden);
-	
-			BufferedImage envelopImage = ImageIO.read(envelopFile);
-			BufferedImage hiddenImage = ImageIO.read(hiddenFile);
+			File txtFile = new File(OUTPUT_PATH + "result.txt");
+			Bitmatrix envelopBm = new Bitmatrix(envelopFile);
+			//envelopBm.writeRawBinaryTxtFile(txtFile);
+			envelopBm.writeRGBbits2BinaryTxtFile(txtFile, 1);
+
 			
-			Bitmatrix envelopBm = new Bitmatrix(envelopImage);
+			//String hidden = args[1];
+			//File hiddenFile = new File(INPUT_PATH + hidden);
+			//BufferedImage hiddenImage = ImageIO.read(hiddenFile);
+			
+			
+
+			
+			/*
 			Bitmatrix hiddenBm = new Bitmatrix(hiddenImage);
 	
 			File outputFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
 			File unhiddenFile = new File(OUTPUT_PATH + "unhidden_"+OUTPUT_FILENAME);
-			File txtFile = new File(OUTPUT_PATH + "result.txt");
+			
 
 			envelopBm.hideInLSB(hiddenBm);
 			
-			//envelopBm.writeRawBinaryTxtFile(txtFile);
-			//envelopBm.writeRGBbits2BinaryTxtFile(txtFile, 1);
 			
 			ImageMicks imageOut = new ImageMicks();
 			imageOut.writeImage(outputFile, envelopBm);
@@ -71,15 +89,11 @@ public class Main {
 			//imageIn.writeImage(outputFile);
 			
 			
-			
-			
-			System.out.println("end");
+			*/
+			Logging.logger.info("... end.");			
 			long stop = System.currentTimeMillis();
-			System.out.println("elapsed = "+(stop-top)/1000 +" s");
-
-		} catch (IOException ioe) {
-			// TODO Auto-generated catch block
-			ioe.printStackTrace();
+			Logging.logger.info("elapsed = "+(stop-top)/1000 +" s");
+			
 		} catch (ArrayIndexOutOfBoundsException ai) {
 			System.out.println("Bad aruments !");
 			ai.printStackTrace();

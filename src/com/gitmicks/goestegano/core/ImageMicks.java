@@ -25,10 +25,12 @@ import javax.imageio.stream.ImageOutputStream;
 
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.log4j.Logger;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.gitmicks.geostegano.main.Main;
 import com.gitmicks.geostegano.tools.Tools;
 import com.sun.imageio.plugins.png.PNGMetadata;
 
@@ -49,6 +51,8 @@ public class ImageMicks {
 
 	protected int rows = 0;
 
+	static Logger logger = Logger.getLogger(Main.class);
+	
 	public ImageMicks() {
 
 	}
@@ -798,6 +802,8 @@ public class ImageMicks {
 		final BufferedImage imageOut = new BufferedImage(bm.getCols(), bm.getRows(),
 				BufferedImage.TYPE_INT_RGB);
 
+		
+		logger.warn("this is a warning log message");
 		for (int i = 0; i < bm.getRows(); i++) {
 			System.out.println("writeImage row "+i);
 			for (int j = 0; j < bm.getCols(); j++) {

@@ -7,14 +7,37 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
+
 import com.gitmicks.geostegano.tools.Tools;
+import com.gitmicks.logging.Logging;
 
 public class Bitmatrix {
-
+	
 	protected int[][][][] bitmatrix;
 	protected int bitDepth = 8;
 
 	protected int colorDepth = 3;
+	
+	protected String data = "";
+	protected String file = "";
+	
+	public String getFile() {
+		return file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
 	public int getBitDepth() {
 		return bitDepth;
 	}
@@ -55,7 +78,7 @@ public class Bitmatrix {
 	final static protected int R = 0;
 
 	public Bitmatrix(int pBitDepth, int pColorDepth, int pCols, int pRows) {
-		super();
+		Logging.logger.info("Bitmatrix "+pBitDepth+" "+pColorDepth+" "+pCols+" "+pRows);
 		this.bitDepth = pBitDepth;
 		this.colorDepth = pColorDepth;
 		this.cols = pCols;
@@ -63,7 +86,12 @@ public class Bitmatrix {
 		this.bitmatrix = new int[cols][rows][colorDepth][bitDepth];
 	}
 
-	public Bitmatrix(BufferedImage image) {
+	public Bitmatrix(File inputFile) throws IOException {
+		BufferedImage image = ImageIO.read(inputFile);
+		Logging.logger.info("Bitmatrix "+image.getData());
+		Logging.logger.info("Bitmatrix "+inputFile.getPath());
+		data = image.getData().toString();
+		file = inputFile.getPath();
 		cols = image.getWidth();
 		rows = image.getHeight();
 		bitmatrix = new int[cols][rows][colorDepth][bitDepth];
@@ -89,13 +117,14 @@ public class Bitmatrix {
 	}
 
 	public void hideInLSB(Bitmatrix bm2hide) {
-		
+		Logging.logger.info("Bitmatrix.hideInLSB "+bm2hide.data);
 		// TODO : add catch on mb2hide size (24 lesser than envelop)		
 		for (int y = 0; y < bm2hide.getCols(); y++) {
 			
 			int index = 0;
-			String bitLine = bm2hide.flattenRow(y);			
-			for (int x = 0; x < cols; x++) {
+			String bitLine = bm2hide.flattenRow(y);		
+			// todo : add comment
+			for (int x = 0; x < bm2hide.getCols()*24; x++) {
 												
 				bitmatrix[x][y][B][0] = Integer.parseInt(bitLine.substring(index, index+1));
 				index = index+1;
@@ -132,6 +161,7 @@ public class Bitmatrix {
 	}
 
 	public void setRGB(int pCol, int pRow, int r, int g, int b) {
+		Logging.logger.debug("Bitmatrix.setRGB "+pCol+" "+pRow+ " "+r+ " "+g+" "+b);
 		setR(pCol, pRow, r);
 		setG(pCol, pRow, g);
 		setB(pCol, pRow, b);
@@ -154,11 +184,9 @@ public class Bitmatrix {
 
 		int r = Tools.bitsToInt(rInBits);
 		int g = Tools.bitsToInt(gInBits);
-		int b = Tools.bitsToInt(bInBits);
-
-		//System.out.println(r+ " "+g+" "+b);
-		
+		int b = Tools.bitsToInt(bInBits);				
 		Color c = new Color(r, g, b);
+		Logging.logger.debug("Bitmatrix.getRGB "+pCol+ " "+pRow+ " "+r+ " "+g+" "+b);
 		return c.getRGB();
 	}
 
@@ -175,7 +203,9 @@ public class Bitmatrix {
 	public void writeRGBbits2BinaryTxtFile(File txtFile, int bitPosition)
 			throws IOException {
 
-		System.out.println("   writeRGBbits2BinaryTxtFile " + bitPosition);
+		Logging.logger.info("Bitmatrix.writeRGBbits2BinaryTxtFile " + txtFile.getPath());
+		Logging.logger.info("Bitmatrix.writeRGBbits2BinaryTxtFile " + bitPosition);
+		
 		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
 
 		for (int y = 0; y < rows; y++) {
@@ -213,8 +243,10 @@ public class Bitmatrix {
 	public void writeRGBbits2BinaryTxtFile(File txtFile, int Rposition,
 			int Gposition, int Bposition) throws IOException {
 
-		System.out.println("   writeRGBbits2BinaryTxtFile " + "R" + Rposition
+		Logging.logger.info("Bitmatrix.writeRGBbits2BinaryTxtFile " + txtFile.getPath());
+		Logging.logger.info("Bitmatrix.writeRGBbits2BinaryTxtFile " + "R" + Rposition
 				+ "G" + Gposition + "B" + Bposition);
+			
 		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
 
 		for (int y = 0; y < rows; y++) {
@@ -237,6 +269,7 @@ public class Bitmatrix {
 
 	public String flattenRow(int rowNumber)
 	{
+		Logging.logger.debug("Bitmatrix.flattenRow " + rowNumber);
 		String stringRow = "";
 		
 		for (int x = 0; x < cols; x++) {
@@ -265,6 +298,8 @@ public class Bitmatrix {
 	
 	public void writeRawBinaryTxtFile(File txtFile) throws IOException {
 
+		Logging.logger.info("Bitmatrix.writeRawBinaryTxtFile " + txtFile.getPath());
+		
 		BufferedWriter txtWriter = new BufferedWriter(new FileWriter(txtFile));
 
 		for (int y = 0; y < rows; y++) {
@@ -279,6 +314,7 @@ public class Bitmatrix {
 	
 	public void setPixelFromBitString(int x, int y, String bitString)
 	{
+		Logging.logger.debug("Bitmatrix.setPixelFromBitString " + x+ " "+y+" "+bitString);
 		int index = 0;
 		for (int k = 0; k < colorDepth; k++) {
 			for (int pos = 0; pos < bitDepth ; pos++) {
@@ -293,6 +329,7 @@ public class Bitmatrix {
 	
 	public void setRowFromBitLine (String bitLine,int rowIndex)
 	{
+		Logging.logger.info("Bitmatrix.setRowFromBitLine " + rowIndex+ " "+bitLine);
 		int numberOfBitsInApixel = colorDepth*bitDepth;
 		// a vector of pixels formatted in RGB bits strings
 		String[] stringVector = Tools.getStringVector(bitLine, cols, numberOfBitsInApixel);

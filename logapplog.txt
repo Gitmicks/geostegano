@@ -1,0 +1,3 @@
+DEBUG   2014-06-22 13:46:03,350 [main] com.gitmicks.geostegano.main.Main  - this is a debug log message
+INFO    2014-06-22 13:46:03,362 [main] com.gitmicks.geostegano.main.Main  - this is a information log message
+WARN    2014-06-22 13:46:03,362 [main] com.gitmicks.geostegano.main.Main  - this is a warning log message

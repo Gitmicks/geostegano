@@ -1,0 +1,7 @@
+INFO    2014-06-22 16:29:36,386 - Start ...
+INFO    2014-06-22 16:29:36,620 - Bitmatrix ByteInterleavedRaster: width = 778 height = 796 #numDataElements 3 dataOff[0] = 2
+INFO    2014-06-22 16:29:36,620 - Bitmatrix src\input\Furashova.png
+INFO    2014-06-22 16:29:47,689 - Bitmatrix.writeRGBbits2BinaryTxtFile src\output\result.txt
+INFO    2014-06-22 16:29:47,689 - Bitmatrix.writeRGBbits2BinaryTxtFile 1
+INFO    2014-06-22 16:29:50,492 - ... end.
+INFO    2014-06-22 16:29:50,492 - elapsed = 14 s

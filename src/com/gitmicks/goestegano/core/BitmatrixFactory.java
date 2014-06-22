@@ -1,6 +1,7 @@
 package com.gitmicks.goestegano.core;
 
-import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import com.gitmicks.geostegano.tools.Tools;
 
@@ -12,10 +13,11 @@ public class BitmatrixFactory {
 	 * 
 	 * @param image
 	 * @return
+	 * @throws IOException 
 	 */
-	public static Bitmatrix buildLSBitmatrixFromImage(BufferedImage image) {
+	public static Bitmatrix buildLSBitmatrixFromFile(File inputFile) throws IOException {
 
-		Bitmatrix bmSource = new Bitmatrix(image);
+		Bitmatrix bmSource = new Bitmatrix(inputFile);
 
 		// defining width and height
 		// 1 pixel (origin) = 1/24 pixel (destination)
