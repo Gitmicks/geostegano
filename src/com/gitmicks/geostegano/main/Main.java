@@ -4,10 +4,10 @@ import java.io.File;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.gitmicks.goestegano.core.Bitmatrix;
+import com.gitmicks.goestegano.core.BitmatrixFactory;
 import com.gitmicks.logging.Logging;
 
 public class Main {
@@ -37,12 +37,26 @@ public class Main {
 		try {
 		
 			String envelop = args[0];
+			String textFile = args[1];
 			File envelopFile = new File(INPUT_PATH + envelop);
-			File txtFile = new File(OUTPUT_PATH + "result.txt");
-			Bitmatrix envelopBm = new Bitmatrix(envelopFile);
-			//envelopBm.writeRawBinaryTxtFile(txtFile);
-			envelopBm.writeRGBbits2BinaryTxtFile(txtFile, 1);
-
+			File inputTextFile = new File(INPUT_PATH + textFile);
+						
+			File resultTxtFile = new File(OUTPUT_PATH + "result.txt");
+			File outputPNGFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
+			//Bitmatrix envelopBM = new Bitmatrix(envelopFile);
+			//envelopBM.writeRawBinaryTxtFile(txtFile);
+			//envelopBM.writeRGBbits2BinaryTxtFile(txtFile, 1);
+			//envelopBM.writeAsciiTxtFile(txtFile);
+			
+			//Bitmatrix outputBM = BitmatrixFactory.buildBitmatrixfromRGB(envelopBM, 1);
+			//outputBM.writeAsciiTxtFile(txtFile);
+			
+			//ImageMicks imageOut = new ImageMicks();
+			//imageOut.writeImage(outputFile, outputBM);
+			
+			Bitmatrix outputBM = BitmatrixFactory.buildBitmatrixFromText(inputTextFile);
+			outputBM.writeRawBinaryTxtFile(resultTxtFile);
+			
 			
 			//String hidden = args[1];
 			//File hiddenFile = new File(INPUT_PATH + hidden);
@@ -54,7 +68,7 @@ public class Main {
 			/*
 			Bitmatrix hiddenBm = new Bitmatrix(hiddenImage);
 	
-			File outputFile = new File(OUTPUT_PATH + OUTPUT_FILENAME);
+			
 			File unhiddenFile = new File(OUTPUT_PATH + "unhidden_"+OUTPUT_FILENAME);
 			
 
@@ -65,7 +79,7 @@ public class Main {
 			imageOut.writeImage(outputFile, envelopBm);
 								
 			BufferedImage envelopImageWithHidden = ImageIO.read(outputFile);
-			Bitmatrix outputBM = BitmatrixFactory.buildLSBitmatrixFromImage(envelopImageWithHidden);
+			Bitmatrix outputBM = BitmatrixFactory.buildBitmatrixFromLSB(envelopImageWithHidden);
 			imageOut.writeImage(unhiddenFile, outputBM);
 			
 			

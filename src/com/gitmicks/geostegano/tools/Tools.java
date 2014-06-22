@@ -1,5 +1,14 @@
 package com.gitmicks.geostegano.tools;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
+import com.gitmicks.logging.Logging;
+
 
 public class Tools {
 	
@@ -74,5 +83,48 @@ public class Tools {
 		}
 		return stringVector;
 	}
+	
+	public static String getASCIIcharacters (String bitString)
+	{
+		Logging.logger.debug("Tools.getASCIIcharacters ");
+		String result = "";
+		
+		int length = bitString.length();
+		int numberOfCharacters = (length - (length % 8)) / 8;
+		int index = 0;
+		for (int i = 0; i < numberOfCharacters; i++) {
+						
+			result = result + (char)Integer.parseInt(bitString.substring(index, index+8), 2);
+			
+			index = index+8;
+		}
+		
+		return result;
+		
+	}
+
+	
+	public static String AsciiToBinary(String asciiString){  
+
+        byte[] bytes = asciiString.getBytes();  
+        StringBuilder binary = new StringBuilder();  
+        for (byte b : bytes)  
+        {  
+           int val = b;  
+           for (int i = 0; i < 8; i++)  
+           {  
+              binary.append((val & 128) == 0 ? 0 : 1);  
+              val <<= 1;  
+           }  
+          // binary.append(' ');  
+        }  
+        return binary.toString();  
+  }  
+
+	public static List<String> textFileToStringList(File inputFile) throws IOException
+	{
+		return Files.readAllLines(Paths.get(inputFile.getPath()), StandardCharsets.ISO_8859_1);
+	}
+	
 	
 }
