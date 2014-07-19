@@ -85,6 +85,12 @@ public class Bitmatrix {
 	final static protected int G = 1;
 	final static protected int R = 0;
 
+	/**
+	 * @param pBitDepth
+	 * @param pColorDepth
+	 * @param pCols
+	 * @param pRows
+	 */
 	public Bitmatrix(int pBitDepth, int pColorDepth, int pCols, int pRows) {
 		Logging.logger.info("Bitmatrix " + pBitDepth + " " + pColorDepth + " "
 				+ pCols + " " + pRows);
@@ -95,6 +101,14 @@ public class Bitmatrix {
 		this.bitmatrix = new int[cols][rows][colorDepth][bitDepth];
 	}
 
+	/**
+	 * Builds a Bitmatrix using a PNG file as input
+	 * 
+	 * 
+	 * @param inputFile
+	 *            : PNG file
+	 * @throws IOException
+	 */
 	public Bitmatrix(File inputFile) throws IOException {
 		BufferedImage image = ImageIO.read(inputFile);
 		Logging.logger.info("Bitmatrix " + image.getData());
@@ -116,12 +130,37 @@ public class Bitmatrix {
 		}
 	}
 
+	/**
+	 * @param hexMatrix
+	 * @param pCols
+	 * @param pRows
+	 */
+	public Bitmatrix(String[][] hexMatrix, int pCols, int pRows) {
+		cols = pCols;
+		rows = pRows;
+		bitmatrix = new int[cols][rows][colorDepth][bitDepth];
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < cols; x++) {
+				setRGB(x, y, hexMatrix[x][y]);
+			}
+		}
+	}
+
+	/**
+	 * @param pCols
+	 * @param pRows
+	 */
 	public Bitmatrix(int pCols, int pRows) {
 		this.cols = pCols;
 		this.rows = pRows;
 		bitmatrix = new int[cols][rows][colorDepth][bitDepth];
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @param rgb
+	 */
 	public void setR(int pCol, int pRow, int rgb) {
 		String rgbInBits = Tools.intToBits(rgb);
 		for (int j = 0; j < bitDepth; j++) {
@@ -131,6 +170,9 @@ public class Bitmatrix {
 		}
 	}
 
+	/**
+	 * @param bm2hide
+	 */
 	public void hideInLSB(Bitmatrix bm2hide) {
 		Logging.logger.info("Bitmatrix.hideInLSB " + bm2hide.data);
 		// TODO : add catch on mb2hide size (24 lesser than envelop)
@@ -150,14 +192,33 @@ public class Bitmatrix {
 
 	}
 
+	/**
+	 * @param x
+	 * @param y
+	 * @param c
+	 * @param pos
+	 * @return
+	 */
 	public int getBit(int x, int y, int c, int pos) {
 		return bitmatrix[x][y][c][pos];
 	}
 
+	/**
+	 * @param x
+	 * @param y
+	 * @param c
+	 * @param pos
+	 * @param bit
+	 */
 	public void setBit(int x, int y, int c, int pos, int bit) {
 		bitmatrix[x][y][c][pos] = bit;
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @param rgb
+	 */
 	public void setG(int pCol, int pRow, int rgb) {
 		String rgbInBits = Tools.intToBits(rgb);
 		for (int j = 0; j < bitDepth; j++) {
@@ -166,6 +227,11 @@ public class Bitmatrix {
 		}
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @param rgb
+	 */
 	public void setB(int pCol, int pRow, int rgb) {
 		String rgbInBits = Tools.intToBits(rgb);
 		for (int j = 0; j < bitDepth; j++) {
@@ -174,6 +240,13 @@ public class Bitmatrix {
 		}
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @param r
+	 * @param g
+	 * @param b
+	 */
 	public void setRGB(int pCol, int pRow, int r, int g, int b) {
 		Logging.logger.debug("Bitmatrix.setRGB " + pCol + " " + pRow + " " + r
 				+ " " + g + " " + b);
@@ -182,6 +255,30 @@ public class Bitmatrix {
 		setB(pCol, pRow, b);
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @param hexColor
+	 */
+	public void setRGB(int pCol, int pRow, String hexColor) {
+		Logging.logger.debug("Bitmatrix.setRGB " + pCol + " " + pRow + " "
+				+ hexColor);
+		Color color = Tools.hex2Rgb(hexColor);
+
+		setR(pCol, pRow, color.getRed());
+		setG(pCol, pRow, color.getGreen());
+		setB(pCol, pRow, color.getBlue());
+
+		Logging.logger.debug("Bitmatrix.setRGB " + hexColor + " r : "
+				+ color.getRed());
+
+	}
+
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @return
+	 */
 	public int getRGB(int pCol, int pRow) {
 
 		String rInBits = "";
@@ -206,6 +303,34 @@ public class Bitmatrix {
 		return c.getRGB();
 	}
 
+	/**
+	 * @param pCol
+	 * @param pRow
+	 * @return color
+	 */
+	public Color getColor(int pCol, int pRow) {
+
+		String rInBits = "";
+		String gInBits = "";
+		String bInBits = "";
+
+		for (int k = 0; k < bitDepth; k++) {
+			rInBits = rInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.R][bitDepth - 1 - k];
+			gInBits = gInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.G][bitDepth - 1 - k];
+			bInBits = bInBits
+					+ bitmatrix[pCol][pRow][ImageMicks.B][bitDepth - 1 - k];
+		}
+
+		int r = Tools.bitsToInt(rInBits);
+		int g = Tools.bitsToInt(gInBits);
+		int b = Tools.bitsToInt(bInBits);
+		Color c = new Color(r, g, b);
+		return c;
+	}
+	
+	
 	/**
 	 * Gets all the "n-position (0..7)" RGB bits from bitmatrix and exports them
 	 * to a text file, row by row.
@@ -323,6 +448,10 @@ public class Bitmatrix {
 
 	}
 
+	/**
+	 * @param txtFile
+	 * @throws IOException
+	 */
 	public void writeRawBinaryTxtFile(File txtFile) throws IOException {
 
 		Logging.logger.info("Bitmatrix.writeRawBinaryTxtFile "
@@ -340,6 +469,10 @@ public class Bitmatrix {
 
 	}
 
+	/**
+	 * @param txtFile
+	 * @throws IOException
+	 */
 	public void writeAsciiTxtFile(File txtFile) throws IOException {
 
 		Logging.logger.info("Bitmatrix.writeAsciiTxtFile " + txtFile.getPath());
@@ -357,6 +490,11 @@ public class Bitmatrix {
 
 	}
 
+	/**
+	 * @param x
+	 * @param y
+	 * @param bitString
+	 */
 	public void setPixelFromBitString(int x, int y, String bitString) {
 		Logging.logger.debug("Bitmatrix.setPixelFromBitString " + x + " " + y
 				+ " " + bitString);
@@ -373,6 +511,10 @@ public class Bitmatrix {
 		}
 	}
 
+	/**
+	 * @param bitLine
+	 * @param rowIndex
+	 */
 	public void setRowFromBitLine(String bitLine, int rowIndex) {
 		Logging.logger.info("Bitmatrix.setRowFromBitLine " + rowIndex + " "
 				+ bitLine);
@@ -386,8 +528,12 @@ public class Bitmatrix {
 
 	}
 
-	
-	public void setRowFromBitLine(String bitLine, int colsNumber,int rowIndex) {
+	/**
+	 * @param bitLine
+	 * @param colsNumber
+	 * @param rowIndex
+	 */
+	public void setRowFromBitLine(String bitLine, int colsNumber, int rowIndex) {
 		Logging.logger.info("Bitmatrix.setRowFromBitLine " + rowIndex + " "
 				+ bitLine);
 		int numberOfBitsInApixel = colorDepth * bitDepth;
@@ -400,5 +546,4 @@ public class Bitmatrix {
 
 	}
 
-	
 }

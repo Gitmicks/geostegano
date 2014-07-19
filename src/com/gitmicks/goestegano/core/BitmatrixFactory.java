@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.gitmicks.geostegano.tools.Tools;
 import com.gitmicks.logging.Logging;
 
@@ -50,6 +52,7 @@ public class BitmatrixFactory {
 	/**
 	 * Creates a Bitmatrix by getting the R,G and B bit (at the bitPosition) of every RGB
 	 * of the input (a Bitmatrix). 
+	 * 
 	 * 
 	 */
 	public static Bitmatrix buildBitmatrixfromRGB(Bitmatrix bmSource, int bitPosition)
@@ -113,22 +116,21 @@ public class BitmatrixFactory {
 		// defining width and height
 		// 1 pixel (origin) = 1/24 pixel (destination)
 		
-			
+		
+		// width must include all characters
 		int width = (maxLength - (maxLength % 3)) / 3 ;
 		if (maxLength % 3 > 0) {
 			width++;
 		}
-		
-		//TODO : handle lines having different sizes => pad with spaces
-		//StringUtils.rightPad(bitLine, 10);	
-		
-		int height = numberOfLines; // number of lines
+			
+		int height = numberOfLines; 
 
 		Bitmatrix bmDestination = new Bitmatrix(width, height);
 		
 		for (int y = 0; y < height; y++) {
 
-			String bitLine = Tools.AsciiToBinary(stringList[y]);
+			// all lines must have the same size
+			String bitLine = Tools.AsciiToBinary(StringUtils.rightPad(stringList[y],width*24));
 			
 			Logging.logger.debug("BitmatrixFactory.buildBitmatrixFromText "+bitLine);			
 			bmDestination.setRowFromBitLine(bitLine, y);			
